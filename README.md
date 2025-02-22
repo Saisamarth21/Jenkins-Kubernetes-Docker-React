@@ -33,12 +33,14 @@ The Jenkins pipeline is defined in the `Jenkinsfile` and consists of the followi
      ```
      https://github.com/Saisamarth21/Jenkins-Kubernetes-Docker-React.git
      ```
+     
    - Checks out the `main` branch.
 
 2. **Build Docker Image Stage:**
    - Builds the Docker image using the Dockerfile.
    - Tags the image as `saisamarth21/jenkins-kubernetes-docker-react:latest`.
    - Command used:
+     
      ```bash
      docker build -t saisamarth21/jenkins-kubernetes-docker-react:latest .
      ```
@@ -47,6 +49,7 @@ The Jenkins pipeline is defined in the `Jenkinsfile` and consists of the followi
    - Logs into Docker Hub using Jenkins credentials.
    - Pushes the newly built image to Docker Hub.
    - Commands used:
+     
      ```bash
      docker login --username <username> --password <password>
      docker push saisamarth21/jenkins-kubernetes-docker-react:latest
@@ -55,6 +58,7 @@ The Jenkins pipeline is defined in the `Jenkinsfile` and consists of the followi
 4. **Deploy to Kubernetes Stage:**
    - Uses `kubectl apply -f react-dpl.yml --validate=false` to deploy or update the Kubernetes resources.
    - Verifies the deployment with:
+     
      ```bash
      kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
      ```
@@ -129,8 +133,8 @@ pipeline {
 }
 ```
 
-
 ### Kubernetes Manifest (react-dpl.yml)
+
 
 ```groovy
 apiVersion: apps/v1
@@ -171,18 +175,44 @@ spec:
 
 ```
 
+----
 
-## How to Run Locally
+### DockerFile 
 
-1. **Build the Docker Image:**
+```
+# Stage 1: Build the React app using Vite
+FROM node:18-alpine AS builder
+WORKDIR /app
 
-```bash
-docker build -t saisamarth21/jenkins-kubernetes-docker-react:latest .
+# Copy package files and install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy the rest of the application code and build
+COPY . .
+RUN npm run build
+
+# Stage 2: Run the production build using Vite's preview
+FROM node:18-alpine
+WORKDIR /app
+
+# Copy the built app from the builder stage
+COPY --from=builder /app .
+
+# Ensure Vite's preview server listens on all interfaces
+ENV HOST=0.0.0.0
+
+# Expose the default Vite preview port (4173)
+EXPOSE 4173
+
+# Start the preview server with the --host flag
+CMD ["npm", "run", "preview", "--", "--host"]
+
 ```
 
-## How to Run Locally
 
 ## How to Run Locally
+
 
 1. **Build the Docker Image:**
 
@@ -226,23 +256,25 @@ minikube service jenkins-kubernetes-docker-react-service
 
 ## Screenshots
 
-_You can include the following screenshots in an `images/` directory and reference them below:_
+
+- **Docker Hub:** [Link](https://hub.docker.com/r/saisamarth21/jenkins-kubernetes-docker-react)
+  ![Screenshot 2025-02-22 224733](https://github.com/user-attachments/assets/b87e1034-be2a-4b64-b590-b6881a914c09)
 
 
-- **Docker Hub:** ![Screenshot 2025-02-22 163521](https://github.com/user-attachments/assets/6f0cf166-4838-428d-8b0f-ddc4391845f1)
-
-- **Jenkins Dashboard:** Screenshot showing the successful pipeline run. ![Screenshot 2025-02-22 163416](https://github.com/user-attachments/assets/e3359baf-3509-42f4-a427-2b38cc2c042d)
+- **Jenkins Dashboard:** Screenshot showing the successful pipeline run.
+   ![Screenshot 2025-02-22 224854](https://github.com/user-attachments/assets/f091be57-95a4-449c-8b95-a1bbe4250ce3)
+   ![Screenshot 2025-02-22 163416](https://github.com/user-attachments/assets/e3359baf-3509-42f4-a427-2b38cc2c042d) 
 
 
 - **Terminal Output:** Screenshots before and after deployment (e.g., `kubectl get pods` and `kubectl get services`).
 
-**Before**
+- **Before Pipeline**
 
-![Screenshot 2025-02-22 163015](https://github.com/user-attachments/assets/7876abeb-1cf9-4363-b63c-e53e5d8a6bc0)
+ ![Screenshot 2025-02-22 163015](https://github.com/user-attachments/assets/7876abeb-1cf9-4363-b63c-e53e5d8a6bc0)
 
 
-**After**
+- **After Pipeline**
 
-![Screenshot 2025-02-22 163126](https://github.com/user-attachments/assets/0f98055e-28e2-4509-9ab6-586d1d997c2f)
+ ![Screenshot 2025-02-22 163126](https://github.com/user-attachments/assets/0f98055e-28e2-4509-9ab6-586d1d997c2f)
 
 
