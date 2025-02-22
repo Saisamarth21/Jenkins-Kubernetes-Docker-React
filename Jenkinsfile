@@ -5,16 +5,16 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Check out the 'main' branch from your GitHub repository
-                git branch: 'main', url: 'https://github.com/Saisamarth21/React-todo.git'
+                git branch: 'main', url: 'https://github.com/Saisamarth21/Jenkins-Kubernetes-Docker-React.git'
             }
         }
         stage('Build Docker Image') {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'docker build -t saisamarth21/react-todo:latest .'
+                        sh 'docker build -t saisamarth21/jenkins-kubernetes-docker-react:latest .'
                     } else {
-                        bat 'docker build -t saisamarth21/react-todo:latest .'
+                        bat 'docker build -t saisamarth21/jenkins-kubernetes-docker-react:latest .'
                     }
                 }
             }
@@ -26,12 +26,12 @@ pipeline {
                         if (isUnix()) {
                             sh '''
                               echo "$DOCKERHUB_PSW" | docker login --username "$DOCKERHUB_USR" --password-stdin
-                              docker push saisamarth21/react-todo:latest
+                              docker push saisamarth21/jenkins-kubernetes-docker-react:latest
                             '''
                         } else {
                             // On Windows, environment variables in a bat command are referenced with %VAR%
                             bat 'docker login --username %DOCKERHUB_USR% --password %DOCKERHUB_PSW%'
-                            bat 'docker push saisamarth21/react-todo:latest'
+                            bat 'docker push saisamarth21/jenkins-kubernetes-docker-react:latest'
                         }
                     }
                 }
@@ -44,11 +44,11 @@ pipeline {
                         if (isUnix()) {
                             sh '''
                               kubectl apply -f react-dpl.yml
-                              kubectl rollout status deployment/react-todo-deployment
+                              kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
                             '''
                         } else {
                             bat 'kubectl apply -f react-dpl.yml'
-                            bat 'kubectl rollout status deployment/react-todo-deployment'
+                            bat 'kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment'
                         }
                     }
                 }
