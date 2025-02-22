@@ -29,7 +29,7 @@ pipeline {
                               docker push saisamarth21/jenkins-kubernetes-docker-react:latest
                             '''
                         } else {
-                            // On Windows, environment variables in a bat command are referenced with %VAR%
+                            // On Windows, reference environment variables with %VAR%
                             bat 'docker login --username %DOCKERHUB_USR% --password %DOCKERHUB_PSW%'
                             bat 'docker push saisamarth21/jenkins-kubernetes-docker-react:latest'
                         }
@@ -43,11 +43,11 @@ pipeline {
                     script {
                         if (isUnix()) {
                             sh '''
-                              kubectl apply -f react-dpl.yml
+                              kubectl apply -f react-dpl.yml --validate=false
                               kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
                             '''
                         } else {
-                            bat 'kubectl apply -f react-dpl.yml'
+                            bat 'kubectl apply -f react-dpl.yml --validate=false'
                             bat 'kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment'
                         }
                     }
